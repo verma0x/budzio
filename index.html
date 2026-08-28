@@ -1,205 +1,1487 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BUDZIO | Student Expense Tracker</title>
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #0f172a;
-            --muted: #64748b;
-            --border: #e2e8f0;
-            --danger: #ef4444;
-        }
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-        h1 { margin-bottom: 5px; }
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .summary {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-        form {
-            display: grid;
-            gap: 12px;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        button:hover { background: var(--primary-hover); }
-        .expense-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .expense-item:last-child { border-bottom: none; }
-        .meta { font-size: 0.85rem; color: var(--muted); }
-        .delete-btn {
-            background: transparent;
-            color: var(--danger);
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            padding: 4px 8px;
-        }
-        .delete-btn:hover { background: #fee2e2; border-radius: 4px; }
-        .empty { text-align: center; color: var(--muted); padding: 20px 0; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Budzio — Student Finance</title>
+
+<style>
+
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    color: #17221b;
+
+    overflow-x: hidden;
+}
+
+
+/* =====================================================
+   CLOUDY GRADIENT BACKGROUND
+===================================================== */
+
+body::before,
+body::after {
+
+    content: "";
+
+    position: fixed;
+
+    width: 420px;
+    height: 420px;
+
+    border-radius: 50%;
+
+    filter: blur(90px);
+
+    z-index: -2;
+
+    pointer-events: none;
+}
+
+body::before {
+
+    top: -160px;
+    left: -120px;
+
+    background:
+        rgba(80, 200, 140, 0.35);
+}
+
+body::after {
+
+    right: -140px;
+    bottom: -150px;
+
+    background:
+        rgba(150, 230, 190, 0.35);
+}
+
+
+.background-cloud {
+
+    position: fixed;
+
+    width: 500px;
+    height: 300px;
+
+    left: 30%;
+    top: 25%;
+
+    background:
+        rgba(210, 245, 225, 0.45);
+
+    filter: blur(100px);
+
+    border-radius: 50%;
+
+    z-index: -2;
+
+    pointer-events: none;
+}
+
+
+/* =====================================================
+   APP
+===================================================== */
+
+.app {
+
+    width: 100%;
+
+    max-width: 480px;
+
+    margin: auto;
+
+    padding:
+        22px 17px 110px;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 25px;
+}
+
+
+/* =====================================================
+   LOGO
+===================================================== */
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.logo {
+
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #35c979,
+            #159957
+        );
+
+    color: white;
+
+    font-size: 23px;
+
+    font-weight: 900;
+
+    box-shadow:
+        0 10px 25px
+        rgba(24, 165, 93, 0.25);
+}
+
+
+/* little leaf */
+
+.logo::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 11px;
+    height: 6px;
+
+    right: 8px;
+    top: 8px;
+
+    background: #baf3d0;
+
+    border-radius:
+        100% 0 100% 0;
+
+    transform:
+        rotate(-25deg);
+}
+
+
+.brand-name {
+
+    font-size: 22px;
+
+    font-weight: 850;
+
+    letter-spacing:
+        -0.7px;
+}
+
+
+.brand-subtitle {
+
+    color: #738077;
+
+    font-size: 10px;
+
+    margin-top: 2px;
+}
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+.profile {
+
+    width: 40px;
+    height: 40px;
+
+    border-radius: 13px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(255,255,255,0.6);
+
+    backdrop-filter:
+        blur(15px);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.8);
+
+    color: #21945a;
+
+    font-weight: 800;
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   GREETING
+===================================================== */
+
+.greeting {
+
+    margin-bottom: 17px;
+}
+
+
+.greeting small {
+
+    color: #7c877f;
+
+    font-size: 10px;
+}
+
+
+.greeting h1 {
+
+    margin-top: 4px;
+
+    font-size: 27px;
+
+    letter-spacing:
+        -1px;
+}
+
+
+/* =====================================================
+   BALANCE CARD
+===================================================== */
+
+.balance-card {
+
+    padding: 22px;
+
+    border-radius: 25px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,0.72),
+            rgba(239,255,246,0.58)
+        );
+
+    backdrop-filter:
+        blur(25px);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.85);
+
+    box-shadow:
+        0 18px 45px
+        rgba(36, 130, 82, 0.10);
+
+    margin-bottom: 15px;
+}
+
+
+.balance-label {
+
+    color: #738077;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+}
+
+
+.balance {
+
+    margin-top: 7px;
+
+    font-size: 36px;
+
+    font-weight: 900;
+
+    letter-spacing:
+        -1.5px;
+}
+
+
+.balance span {
+
+    font-size: 18px;
+
+    color: #7d8780;
+}
+
+
+.balance-row {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items: center;
+
+    margin-top: 17px;
+}
+
+
+.balance-info {
+
+    font-size: 10px;
+
+    color: #7a857d;
+}
+
+
+.balance-positive {
+
+    color: #168853;
+
+    font-weight: 800;
+}
+
+
+/* =====================================================
+   QUICK STATS
+===================================================== */
+
+.stats {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 11px;
+
+    margin-bottom: 22px;
+}
+
+
+.stat {
+
+    padding: 16px;
+
+    border-radius: 19px;
+
+    background:
+        rgba(255,255,255,0.58);
+
+    backdrop-filter:
+        blur(18px);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.75);
+}
+
+
+.stat-icon {
+
+    width: 31px;
+    height: 31px;
+
+    border-radius: 10px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 10px;
+
+    font-size: 13px;
+}
+
+
+.income-icon {
+
+    background: #e4f8ed;
+
+    color: #1b9a5c;
+}
+
+
+.expense-icon {
+
+    background: #fff0ec;
+
+    color: #d96751;
+}
+
+
+.stat-label {
+
+    font-size: 9px;
+
+    color: #7c877f;
+}
+
+
+.stat-value {
+
+    margin-top: 4px;
+
+    font-size: 17px;
+
+    font-weight: 850;
+}
+
+
+/* =====================================================
+   SECTION HEADER
+===================================================== */
+
+.section-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin:
+        4px 2px 12px;
+}
+
+
+.section-title {
+
+    font-size: 15px;
+
+    font-weight: 850;
+}
+
+
+.view-all {
+
+    border: none;
+
+    background: none;
+
+    color: #21945a;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   EXPENSE LIST
+===================================================== */
+
+.expense-card {
+
+    padding: 13px;
+
+    border-radius: 18px;
+
+    background:
+        rgba(255,255,255,0.57);
+
+    backdrop-filter:
+        blur(18px);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.75);
+
+    margin-bottom: 9px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+
+.expense-left {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+
+.expense-icon {
+
+    width: 39px;
+    height: 39px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background:
+        #eaf8f0;
+
+    color: #21945a;
+
+    font-size: 15px;
+}
+
+
+.expense-name {
+
+    font-size: 11px;
+
+    font-weight: 750;
+}
+
+
+.expense-date {
+
+    margin-top: 3px;
+
+    font-size: 8px;
+
+    color: #8b958e;
+}
+
+
+.expense-amount {
+
+    font-size: 12px;
+
+    font-weight: 850;
+}
+
+
+/* =====================================================
+   SAVING GOAL
+===================================================== */
+
+.goal-card {
+
+    padding: 17px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(255,255,255,0.6);
+
+    backdrop-filter:
+        blur(20px);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.8);
+
+    margin-top: 23px;
+}
+
+
+.goal-top {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items: center;
+}
+
+
+.goal-name {
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+
+.goal-percent {
+
+    color: #21945a;
+
+    font-size: 11px;
+
+    font-weight: 850;
+}
+
+
+.goal-amount {
+
+    margin-top: 7px;
+
+    font-size: 10px;
+
+    color: #7b867f;
+}
+
+
+.progress {
+
+    height: 8px;
+
+    margin-top: 13px;
+
+    background:
+        rgba(33,148,90,0.10);
+
+    border-radius: 100px;
+
+    overflow: hidden;
+}
+
+
+.progress-fill {
+
+    height: 100%;
+
+    width: 68%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #42cd86,
+            #159957
+        );
+
+    border-radius: 100px;
+}
+
+
+/* =====================================================
+   BILLS
+===================================================== */
+
+.bill-card {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 14px;
+
+    margin-top: 9px;
+
+    border-radius: 17px;
+
+    background:
+        rgba(255,255,255,0.57);
+
+    backdrop-filter:
+        blur(18px);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.75);
+}
+
+
+.bill-left {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.bill-icon {
+
+    width: 37px;
+    height: 37px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background:
+        #edf7f1;
+
+    color: #24955c;
+}
+
+
+.bill-name {
+
+    font-size: 11px;
+
+    font-weight: 750;
+}
+
+
+.bill-due {
+
+    margin-top: 3px;
+
+    color: #8b958e;
+
+    font-size: 8px;
+}
+
+
+.bill-right {
+
+    text-align: right;
+}
+
+
+.bill-amount {
+
+    font-size: 12px;
+
+    font-weight: 850;
+}
+
+
+.bill-status {
+
+    margin-top: 3px;
+
+    font-size: 8px;
+
+    color: #d58b2e;
+}
+
+
+/* =====================================================
+   ADD BUTTON
+===================================================== */
+
+.add-button {
+
+    position: fixed;
+
+    right: max(
+        20px,
+        calc(
+            (100vw - 480px) / 2 + 20px
+        )
+    );
+
+    bottom: 78px;
+
+    width: 53px;
+    height: 53px;
+
+    border: none;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #36c97a,
+            #159957
+        );
+
+    color: white;
+
+    font-size: 25px;
+
+    box-shadow:
+        0 12px 30px
+        rgba(21,153,87,0.3);
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+.add-button:active {
+
+    transform:
+        scale(0.9);
+}
+
+
+/* =====================================================
+   BOTTOM NAV
+===================================================== */
+
+.bottom-nav {
+
+    position: fixed;
+
+    bottom: 0;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    width:
+        min(480px, 100%);
+
+    padding:
+        11px 20px
+        calc(
+            11px +
+            env(safe-area-inset-bottom)
+        );
+
+    background:
+        rgba(255,255,255,0.78);
+
+    backdrop-filter:
+        blur(20px);
+
+    border-top:
+        1px solid
+        rgba(255,255,255,0.8);
+
+    z-index: 100;
+}
+
+
+.nav {
+
+    display: flex;
+
+    justify-content:
+        space-around;
+}
+
+
+.nav-item {
+
+    text-align: center;
+
+    color: #98a19b;
+
+    font-size: 8px;
+
+    font-weight: 750;
+}
+
+
+.nav-icon {
+
+    font-size: 17px;
+
+    margin-bottom: 3px;
+}
+
+
+.nav-item.active {
+
+    color: #21945a;
+}
+
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+.balance-card,
+.stat,
+.expense-card,
+.goal-card,
+.bill-card {
+
+    animation:
+        fadeUp 0.45s ease both;
+}
+
+
+@keyframes fadeUp {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(8px);
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+}
+
+
+/* =====================================================
+   SMALL PHONES
+===================================================== */
+
+@media (max-width: 360px) {
+
+    .app {
+
+        padding-left: 13px;
+        padding-right: 13px;
+    }
+
+    .balance {
+
+        font-size: 32px;
+    }
+
+    .greeting h1 {
+
+        font-size: 24px;
+    }
+
+}
+
+</style>
 </head>
+
+
 <body>
 
-<h1> budzio 🎓</h1>
-    <p class="meta" style="margin-top: 0;">Keep track of your daily spending effortlessly.</p>
 
-    <!-- Summary Card -->
-    <div class="card">
-        <div class="summary">
-            <span>Total Spent:</span>
-            <span id="total-amount">₹0</span>
+<div class="background-cloud"></div>
+
+
+<div class="app">
+
+
+<!-- =================================================
+     HEADER
+================================================= -->
+
+<header class="header">
+
+    <div class="brand">
+
+        <div class="logo">
+            B
         </div>
-    </div>
 
-    <!-- Add Expense Form -->
-    <div class="card">
-        <h3>Add New Expense</h3>
-        <form id="expense-form">
-            <input type="text" id="expense-name" placeholder="Expense name (e.g. Lunch, Bus)" required>
-            <input type="number" id="expense-amount" placeholder="Amount in ₹" min="1" required>
-            <select id="expense-category">
-                <option value="Food">Food</option>
-                <option value="Transport">Transport</option>
-                <option value="College">College</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Other">Other</option>
-            </select>
-            <button type="submit">Add Expense</button>
-        </form>
-    </div>
+        <div>
 
-    <!-- Expense List -->
-    <div class="card">
-        <h3>History</h3>
-        <div id="expense-list">
-            <div class="empty">No expenses added yet.</div>
+            <div class="brand-name">
+                budzio
+            </div>
+
+            <div class="brand-subtitle">
+                Your money. Your goals.
+            </div>
+
         </div>
+
     </div>
 
-    <script>
-        // LocalStorage Key
-        const STORAGE_KEY = 'simple_student_expenses_v1';
 
-        // Load data or initialize empty array
-        let expenses = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    <div class="profile">
+        HV
+    </div>
 
-        const form = document.getElementById('expense-form');
-        const nameInput = document.getElementById('expense-name');
-        const amountInput = document.getElementById('expense-amount');
-        const categoryInput = document.getElementById('expense-category');
-        const listContainer = document.getElementById('expense-list');
-        const totalAmountDisplay = document.getElementById('total-amount');
+</header>
 
-        // Format currency helper
-        const formatMoney = n => '₹' + Number(n).toLocaleString('en-IN');
 
-        // Render function to update UI
-        function render() {
-            // Calculate total
-            const total = expenses.reduce((sum, item) => sum + Number(item.amount), 0);
-            totalAmountDisplay.textContent = formatMoney(total);
 
-            // Render list
-            if (expenses.length === 0) {
-                listContainer.innerHTML = '<div class="empty">No expenses added yet.</div>';
-                return;
-            }
+<!-- =================================================
+     GREETING
+================================================= -->
 
-            listContainer.innerHTML = expenses.slice().reverse().map(item => `
-                <div class="expense-item">
-                    <div>
-                        <strong>${escapeHTML(item.name)}</strong>
-                        <div class="meta">${escapeHTML(item.category)} · ${item.date}</div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <strong>${formatMoney(item.amount)}</strong>
-                        <button class="delete-btn" onclick="deleteExpense(${item.id})">Delete</button>
-                    </div>
-                </div>
-            `).join('');
-        }
+<div class="greeting">
 
-        // Add expense handler
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const newExpense = {
-                id: Date.now(),
-                name: nameInput.value.trim(),
-                amount: parseFloat(amountInput.value),
-                category: categoryInput.value,
-                date: new Date().toISOString().slice(0, 10)
-            };
+    <small>
+        GOOD EVENING
+    </small>
 
-            expenses.push(newExpense);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
-            
-            form.reset();
-            render();
-        });
+    <h1>
+        Your finances,
+        simplified.
+    </h1>
 
-        // Delete expense handler
-        window.deleteExpense = function(id) {
-            expenses = expenses.filter(item => item.id !== id);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
-            render();
-        };
+</div>
 
-        // Security helper to prevent HTML injection
-        function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
-        }
 
-        // Initial render on load
-        render();
-    </script>
+
+<!-- =================================================
+     BALANCE
+================================================= -->
+
+<section class="balance-card">
+
+    <div class="balance-label">
+        Available Balance
+    </div>
+
+
+    <div class="balance">
+
+        ₹2,450
+        <span>
+            .00
+        </span>
+
+    </div>
+
+
+    <div class="balance-row">
+
+        <div class="balance-info">
+
+            This month
+
+        </div>
+
+        <div class="balance-positive">
+
+            + ₹1,240
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =================================================
+     QUICK STATS
+================================================= -->
+
+<div class="stats">
+
+
+    <div class="stat">
+
+        <div
+            class="stat-icon income-icon">
+
+            ↑
+
+        </div>
+
+        <div class="stat-label">
+            Income
+        </div>
+
+        <div class="stat-value">
+            ₹5,000
+        </div>
+
+    </div>
+
+
+
+    <div class="stat">
+
+        <div
+            class="stat-icon expense-icon">
+
+            ↓
+
+        </div>
+
+        <div class="stat-label">
+            Expenses
+        </div>
+
+        <div class="stat-value">
+            ₹2,550
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =================================================
+     RECENT EXPENSES
+================================================= -->
+
+<div class="section-header">
+
+    <div class="section-title">
+        Recent expenses
+    </div>
+
+    <button class="view-all">
+        View all
+    </button>
+
+</div>
+
+
+
+<div class="expense-card">
+
+    <div class="expense-left">
+
+        <div class="expense-icon">
+            ☕
+        </div>
+
+        <div>
+
+            <div class="expense-name">
+                Café
+            </div>
+
+            <div class="expense-date">
+                Today · Food
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="expense-amount">
+        − ₹120
+    </div>
+
+</div>
+
+
+
+<div class="expense-card">
+
+    <div class="expense-left">
+
+        <div class="expense-icon">
+            🚌
+        </div>
+
+        <div>
+
+            <div class="expense-name">
+                Bus pass
+            </div>
+
+            <div class="expense-date">
+                Yesterday · Travel
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="expense-amount">
+        − ₹350
+    </div>
+
+</div>
+
+
+
+<div class="expense-card">
+
+    <div class="expense-left">
+
+        <div class="expense-icon">
+            📚
+        </div>
+
+        <div>
+
+            <div class="expense-name">
+                Books
+            </div>
+
+            <div class="expense-date">
+                Aug 25 · Education
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="expense-amount">
+        − ₹480
+    </div>
+
+</div>
+
+
+
+<!-- =================================================
+     SAVING GOAL
+================================================= -->
+
+<div class="section-header"
+     style="margin-top:25px;">
+
+    <div class="section-title">
+        Saving goal
+    </div>
+
+    <button class="view-all">
+        Manage
+    </button>
+
+</div>
+
+
+
+<div class="goal-card">
+
+    <div class="goal-top">
+
+        <div class="goal-name">
+            New headphones
+        </div>
+
+        <div class="goal-percent">
+            68%
+        </div>
+
+    </div>
+
+
+    <div class="goal-amount">
+
+        ₹3,400 saved
+        of ₹5,000
+
+    </div>
+
+
+    <div class="progress">
+
+        <div
+            class="progress-fill">
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =================================================
+     RECURRING BILLS
+================================================= -->
+
+<div class="section-header"
+     style="margin-top:25px;">
+
+    <div class="section-title">
+        Upcoming bills
+    </div>
+
+    <button class="view-all">
+        View all
+    </button>
+
+</div>
+
+
+
+<div class="bill-card">
+
+    <div class="bill-left">
+
+        <div class="bill-icon">
+            ♪
+        </div>
+
+        <div>
+
+            <div class="bill-name">
+                Spotify
+            </div>
+
+            <div class="bill-due">
+                Due Sep 2
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="bill-right">
+
+        <div class="bill-amount">
+            ₹119
+        </div>
+
+        <div class="bill-status">
+            Upcoming
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="bill-card">
+
+    <div class="bill-left">
+
+        <div class="bill-icon">
+            ☁
+        </div>
+
+        <div>
+
+            <div class="bill-name">
+                Cloud Storage
+            </div>
+
+            <div class="bill-due">
+                Due Sep 5
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="bill-right">
+
+        <div class="bill-amount">
+            ₹75
+        </div>
+
+        <div class="bill-status">
+            Upcoming
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+
+
+<!-- =================================================
+     ADD BUTTON
+================================================= -->
+
+<button
+    class="add-button"
+    title="Add">
+
+    +
+
+</button>
+
+
+
+<!-- =================================================
+     BOTTOM NAV
+================================================= -->
+
+<nav class="bottom-nav">
+
+    <div class="nav">
+
+
+        <div
+            class="nav-item active">
+
+            <div class="nav-icon">
+                ◉
+            </div>
+
+            Overview
+
+        </div>
+
+
+        <div
+            class="nav-item">
+
+            <div class="nav-icon">
+                ↓
+            </div>
+
+            Expenses
+
+        </div>
+
+
+        <div
+            class="nav-item">
+
+            <div class="nav-icon">
+                ↻
+            </div>
+
+            Bills
+
+        </div>
+
+
+        <div
+            class="nav-item">
+
+            <div class="nav-icon">
+                ◎
+            </div>
+
+            Goals
+
+        </div>
+
+
+    </div>
+
+</nav>
+
+
 </body>
 </html>

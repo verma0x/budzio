@@ -1,173 +1,198 @@
-/* =========================================
-   BUDZIO
-   Expense Management System
-========================================= */
+/* =====================================
+   BUDZIO V2
+   Personal Student Finance Tracker
+===================================== */
 
 
-/* =========================================
+/* =====================================
    STORAGE
-========================================= */
+===================================== */
 
-const EXPENSE_KEY = "budzioExpenses";
+const STORAGE = {
 
-const BILL_KEY = "budzioBills";
+    settings: "budzioSettings",
+    expenses: "budzioExpenses",
+    bills: "budzioBills",
+    goals: "budzioGoals"
 
-const GOAL_KEY = "budzioGoals";
+};
 
 
-/* =========================================
-   DATA
-========================================= */
+/* =====================================
+   LOAD DATA
+===================================== */
+
+let settings =
+    JSON.parse(
+        localStorage.getItem(
+            STORAGE.settings
+        )
+    ) || {
+
+        startingBalance: 0,
+        monthlyIncome: 0
+
+    };
+
 
 let expenses =
     JSON.parse(
         localStorage.getItem(
-            EXPENSE_KEY
-        ) || "[]"
-    );
+            STORAGE.expenses
+        )
+    ) || [];
 
 
 let bills =
     JSON.parse(
         localStorage.getItem(
-            BILL_KEY
-        ) || "[]"
-    );
+            STORAGE.bills
+        )
+    ) || [];
 
 
 let goals =
     JSON.parse(
         localStorage.getItem(
-            GOAL_KEY
-        ) || "[]"
-    );
+            STORAGE.goals
+        )
+    ) || [];
 
 
-/* =========================================
+/* =====================================
    HELPERS
-========================================= */
+===================================== */
 
-function $(id) {
+function $(id){
 
     return document.getElementById(id);
 
 }
 
 
-function saveExpenses() {
+function money(amount){
+
+    return "₹" +
+        Number(amount || 0)
+        .toLocaleString(
+            "en-IN",
+            {
+                maximumFractionDigits:2
+            }
+        );
+
+}
+
+
+function formatDate(date){
+
+    return new Date(date)
+        .toLocaleDateString(
+            "en-IN",
+            {
+                day:"numeric",
+                month:"short",
+                year:"numeric"
+            }
+        );
+
+}
+
+
+function saveAll(){
 
     localStorage.setItem(
-        EXPENSE_KEY,
+        STORAGE.settings,
+        JSON.stringify(settings)
+    );
+
+    localStorage.setItem(
+        STORAGE.expenses,
         JSON.stringify(expenses)
     );
 
-}
-
-
-function saveBills() {
-
     localStorage.setItem(
-        BILL_KEY,
+        STORAGE.bills,
         JSON.stringify(bills)
     );
 
-}
-
-
-function saveGoals() {
-
     localStorage.setItem(
-        GOAL_KEY,
+        STORAGE.goals,
         JSON.stringify(goals)
     );
 
 }
 
 
-function formatMoney(amount) {
-
-    return (
-        "₹" +
-        Number(amount)
-            .toLocaleString(
-                "en-IN",
-                {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 2
-                }
-            )
-    );
-
-}
-
-
-function formatDate(date) {
-
-    const d =
-        new Date(date);
-
-    return d.toLocaleDateString(
-        "en-IN",
-        {
-            day: "numeric",
-            month: "short",
-            year: "numeric"
-        }
-    );
-
-}
-
-
-/* =========================================
+/* =====================================
    GREETING
-========================================= */
+===================================== */
 
-function updateGreeting() {
+function updateGreeting(){
 
     const hour =
         new Date().getHours();
 
 
-    let greeting;
+    let text;
 
 
-    if (hour < 12) {
+    if(hour < 12){
 
-        greeting =
-            "GOOD MORNING";
-
-    }
-
-    else if (hour < 18) {
-
-        greeting =
-            "GOOD AFTERNOON";
+        text = "GOOD MORNING";
 
     }
 
-    else {
+    else if(hour < 18){
 
-        greeting =
-            "GOOD EVENING";
+        text = "GOOD AFTERNOON";
+
+    }
+
+    else{
+
+        text = "GOOD EVENING";
 
     }
 
 
     $("greetingText")
-        .textContent =
-        greeting;
+        .textContent = text;
 
 }
 
 
-/* =========================================
-   CURRENT MONTH EXPENSES
-========================================= */
+/* =====================================
+   CATEGORY ICON
+===================================== */
 
-function getMonthlyExpenses() {
+function categoryIcon(category){
 
-    const now =
-        new Date();
+    const icons = {
+
+        Food:"🍔",
+        Travel:"🚌",
+        Education:"📚",
+        Shopping:"🛍️",
+        Entertainment:"🎮",
+        Bills:"🧾",
+        Other:"📦"
+
+    };
+
+
+    return icons[category] || "📦";
+
+}
+
+
+/* =====================================
+   MONTHLY EXPENSES
+===================================== */
+
+function getMonthlyExpenses(){
+
+    const now = new Date();
 
 
     return expenses.filter(
@@ -178,14 +203,17 @@ function getMonthlyExpenses() {
                     expense.date
                 );
 
+
             return (
 
-                date.getMonth() ===
+                date.getMonth()
+                ===
                 now.getMonth()
 
                 &&
 
-                date.getFullYear() ===
+                date.getFullYear()
+                ===
                 now.getFullYear()
 
             );
@@ -196,19 +224,18 @@ function getMonthlyExpenses() {
 }
 
 
-/* =========================================
-   UPDATE OVERVIEW
-========================================= */
+/* =====================================
+   BALANCE CALCULATION
+===================================== */
 
-function updateOverview() {
+function updateDashboard(){
 
-
-    const monthly =
+    const monthlyExpenses =
         getMonthlyExpenses();
 
 
-    const total =
-        monthly.reduce(
+    const expenseTotal =
+        monthlyExpenses.reduce(
             (sum, expense) =>
                 sum +
                 Number(expense.amount),
@@ -217,101 +244,162 @@ function updateOverview() {
 
 
     /*
-       For now we assume the student's
-       starting monthly income is ₹5000.
+       Balance calculation:
 
-       Later we'll make Income fully
-       editable.
+       Starting Balance
+       + Monthly Income
+       - Monthly Expenses
     */
 
-    const income = 5000;
-
-
     const balance =
-        income - total;
+
+        Number(
+            settings.startingBalance
+        )
+
+        +
+
+        Number(
+            settings.monthlyIncome
+        )
+
+        -
+
+        expenseTotal;
+
+
+    $("balance")
+        .textContent =
+        money(balance);
 
 
     $("income")
         .textContent =
-        formatMoney(income);
+        money(
+            settings.monthlyIncome
+        );
 
 
     $("expenses")
         .textContent =
-        formatMoney(total);
-
-
-    $("balance")
-        .innerHTML =
-        formatMoney(balance)
-        + "<span>.00</span>";
+        money(
+            expenseTotal
+        );
 
 
     $("monthlyChange")
         .textContent =
         (balance >= 0 ? "+" : "")
         +
-        formatMoney(balance);
+        money(balance);
 
 }
 
 
-/* =========================================
-   CATEGORY ICON
-========================================= */
+/* =====================================
+   EXPENSE RENDERING
+===================================== */
 
-function categoryIcon(category) {
+function expenseHTML(expense){
 
-    const icons = {
+    return `
 
-        Food: "🍔",
+        <div class="expense-card">
 
-        Travel: "🚌",
+            <div class="expense-left">
 
-        Education: "📚",
+                <div class="expense-icon">
 
-        Shopping: "🛍️",
+                    ${categoryIcon(
+                        expense.category
+                    )}
 
-        Entertainment: "🎮",
-
-        Bills: "🧾",
-
-        Other: "📦"
-
-    };
+                </div>
 
 
-    return (
-        icons[category] ||
-        "📦"
-    );
+                <div>
+
+                    <div class="expense-name">
+
+                        ${escapeHTML(
+                            expense.name
+                        )}
+
+                    </div>
+
+
+                    <div class="expense-date">
+
+                        ${formatDate(
+                            expense.date
+                        )}
+
+                        ·
+
+                        ${expense.category}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="expense-amount">
+
+                    − ${money(
+                        expense.amount
+                    )}
+
+                </div>
+
+
+                <div class="card-actions">
+
+                    <button
+                        class="card-action"
+                        onclick="editExpense('${expense.id}')">
+
+                        Edit
+
+                    </button>
+
+
+                    <button
+                        class="card-action delete"
+                        onclick="deleteExpense('${expense.id}')">
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
 
 }
 
 
-/* =========================================
-   RENDER RECENT EXPENSES
-========================================= */
+function renderRecentExpenses(){
 
-function renderExpenses() {
-
-
-    const list =
-        $("expenseList");
+    const container =
+        $("recentExpenses");
 
 
-    if (
-        expenses.length === 0
-    ) {
+    if(!expenses.length){
 
-        list.innerHTML = `
+        container.innerHTML = `
 
             <div class="empty-state">
 
                 No expenses yet.<br>
-
-                Tap + to add your
-                first expense.
+                Tap + to add one.
 
             </div>
 
@@ -322,7 +410,7 @@ function renderExpenses() {
     }
 
 
-    const sorted =
+    const recent =
         [...expenses]
         .sort(
             (a,b) =>
@@ -333,302 +421,27 @@ function renderExpenses() {
         .slice(0,5);
 
 
-    list.innerHTML =
-        sorted.map(
-            expense => `
-
-            <div class="expense-card">
-
-                <div class="expense-left">
-
-                    <div class="expense-icon">
-
-                        ${categoryIcon(
-                            expense.category
-                        )}
-
-                    </div>
-
-                    <div>
-
-                        <div class="expense-name">
-
-                            ${escapeHTML(
-                                expense.name
-                            )}
-
-                        </div>
-
-                        <div class="expense-date">
-
-                            ${formatDate(
-                                expense.date
-                            )}
-
-                            ·
-
-                            ${expense.category}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div>
-
-                    <span class="expense-amount">
-
-                        − ${formatMoney(
-                            expense.amount
-                        )}
-
-                    </span>
-
-                    <button
-                        class="delete-expense"
-                        onclick="deleteExpense('${expense.id}')">
-
-                        ×
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        `
-        )
+    container.innerHTML =
+        recent
+        .map(expenseHTML)
         .join("");
 
 }
 
 
-/* =========================================
-   ESCAPE HTML
-========================================= */
+function renderAllExpenses(){
 
-function escapeHTML(text) {
+    const container =
+        $("allExpenses");
 
-    const div =
-        document.createElement(
-            "div"
-        );
 
-    div.textContent =
-        text;
+    if(!expenses.length){
 
-    return div.innerHTML;
-
-}
-
-
-/* =========================================
-   ADD EXPENSE
-========================================= */
-
-function addExpense(event) {
-
-    event.preventDefault();
-
-
-    const amount =
-        Number(
-            $("expenseAmount")
-                .value
-        );
-
-
-    const name =
-        $("expenseName")
-            .value
-            .trim();
-
-
-    const category =
-        $("expenseCategory")
-            .value;
-
-
-    const date =
-        $("expenseDate")
-            .value;
-
-
-    if (
-        !amount ||
-        amount <= 0 ||
-        !name ||
-        !date
-    ) {
-
-        alert(
-            "Please fill all fields."
-        );
-
-        return;
-
-    }
-
-
-    const expense = {
-
-        id:
-            Date.now()
-            .toString(),
-
-        amount:
-
-            amount,
-
-        name:
-
-            name,
-
-        category:
-
-            category,
-
-        date:
-
-            date
-
-    };
-
-
-    expenses.push(
-        expense
-    );
-
-
-    saveExpenses();
-
-
-    $("expenseForm")
-        .reset();
-
-
-    closeExpenseModal();
-
-
-    renderExpenses();
-
-
-    updateOverview();
-
-}
-
-
-/* =========================================
-   DELETE EXPENSE
-========================================= */
-
-function deleteExpense(id) {
-
-
-    const confirmed =
-        confirm(
-            "Delete this expense?"
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    expenses =
-        expenses.filter(
-            expense =>
-                expense.id !== id
-        );
-
-
-    saveExpenses();
-
-
-    renderExpenses();
-
-
-    renderAllExpenses();
-
-
-    updateOverview();
-
-}
-
-
-/* =========================================
-   OPEN EXPENSE MODAL
-========================================= */
-
-function openExpenseModal() {
-
-    $("expenseModal")
-        .classList
-        .add("show");
-
-
-    const today =
-        new Date()
-        .toISOString()
-        .split("T")[0];
-
-
-    $("expenseDate")
-        .value =
-        today;
-
-
-    setTimeout(
-        () => {
-
-            $("expenseAmount")
-                .focus();
-
-        },
-        200
-    );
-
-}
-
-
-/* =========================================
-   CLOSE EXPENSE MODAL
-========================================= */
-
-function closeExpenseModal() {
-
-    $("expenseModal")
-        .classList
-        .remove("show");
-
-}
-
-
-/* =========================================
-   ALL EXPENSES
-========================================= */
-
-function renderAllExpenses() {
-
-
-    const list =
-        $("allExpenseList");
-
-
-    if (
-        expenses.length === 0
-    ) {
-
-        list.innerHTML = `
+        container.innerHTML = `
 
             <div class="empty-state">
 
-                No expenses recorded yet.
+                No expenses recorded.
 
             </div>
 
@@ -639,51 +452,294 @@ function renderAllExpenses() {
     }
 
 
-    const sorted =
+    container.innerHTML =
+
         [...expenses]
         .sort(
             (a,b) =>
                 new Date(b.date)
                 -
                 new Date(a.date)
+        )
+        .map(expenseHTML)
+        .join("");
+
+}
+
+
+/* =====================================
+   EXPENSE ADD / EDIT
+===================================== */
+
+function openExpenseModal(expense = null){
+
+    $("expenseModal")
+        .classList
+        .add("show");
+
+
+    if(expense){
+
+        $("editingExpenseId")
+            .value =
+            expense.id;
+
+        $("expenseAmount")
+            .value =
+            expense.amount;
+
+        $("expenseName")
+            .value =
+            expense.name;
+
+        $("expenseCategory")
+            .value =
+            expense.category;
+
+        $("expenseDate")
+            .value =
+            expense.date;
+
+    }
+
+    else{
+
+        $("expenseForm")
+            .reset();
+
+        $("editingExpenseId")
+            .value = "";
+
+        $("expenseDate")
+            .value =
+            new Date()
+            .toISOString()
+            .split("T")[0];
+
+    }
+
+}
+
+
+function editExpense(id){
+
+    const expense =
+        expenses.find(
+            e => e.id === id
         );
 
 
-    list.innerHTML =
-        sorted.map(
-            expense => `
+    if(expense){
 
-            <div class="expense-card">
+        openExpenseModal(
+            expense
+        );
 
-                <div class="expense-left">
+    }
 
-                    <div class="expense-icon">
+}
 
-                        ${categoryIcon(
-                            expense.category
-                        )}
 
+function deleteExpense(id){
+
+    if(
+        !confirm(
+            "Delete this expense?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    expenses =
+        expenses.filter(
+            e => e.id !== id
+        );
+
+
+    saveAll();
+
+    renderAllExpenses();
+
+    renderRecentExpenses();
+
+    updateDashboard();
+
+}
+
+
+$("expenseForm")
+.addEventListener(
+    "submit",
+    function(event){
+
+        event.preventDefault();
+
+
+        const id =
+            $("editingExpenseId")
+            .value;
+
+
+        const expenseData = {
+
+            amount:
+                Number(
+                    $("expenseAmount")
+                    .value
+                ),
+
+            name:
+                $("expenseName")
+                .value
+                .trim(),
+
+            category:
+                $("expenseCategory")
+                .value,
+
+            date:
+                $("expenseDate")
+                .value
+
+        };
+
+
+        if(
+            !expenseData.amount ||
+            !expenseData.name ||
+            !expenseData.date
+        ){
+
+            alert(
+                "Please fill all fields."
+            );
+
+            return;
+
+        }
+
+
+        if(id){
+
+            const index =
+                expenses.findIndex(
+                    e => e.id === id
+                );
+
+
+            if(index !== -1){
+
+                expenses[index] = {
+
+                    ...expenses[index],
+                    ...expenseData
+
+                };
+
+            }
+
+        }
+
+        else{
+
+            expenses.push({
+
+                id:
+                    Date.now()
+                    .toString(),
+
+                ...expenseData
+
+            });
+
+        }
+
+
+        saveAll();
+
+
+        closeModal(
+            "expenseModal"
+        );
+
+
+        renderAllExpenses();
+
+        renderRecentExpenses();
+
+        updateDashboard();
+
+    }
+);
+
+
+/* =====================================
+   BILLS
+===================================== */
+
+function renderBills(){
+
+    const container =
+        $("allBills");
+
+
+    if(!bills.length){
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                No recurring bills yet.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+
+        bills
+        .sort(
+            (a,b) =>
+                new Date(a.date)
+                -
+                new Date(b.date)
+        )
+        .map(
+            bill => `
+
+            <div class="bill-card">
+
+                <div class="bill-left">
+
+                    <div class="bill-icon">
+                        🧾
                     </div>
 
                     <div>
 
-                        <div class="expense-name">
+                        <div class="bill-name">
 
                             ${escapeHTML(
-                                expense.name
+                                bill.name
                             )}
 
                         </div>
 
-                        <div class="expense-date">
+                        <div class="bill-due">
 
-                            ${formatDate(
-                                expense.date
-                            )}
-
+                            ${bill.frequency}
                             ·
-
-                            ${expense.category}
+                            Due ${formatDate(
+                                bill.date
+                            )}
 
                         </div>
 
@@ -694,21 +750,34 @@ function renderAllExpenses() {
 
                 <div>
 
-                    <span class="expense-amount">
+                    <div class="bill-amount">
 
-                        − ${formatMoney(
-                            expense.amount
+                        ${money(
+                            bill.amount
                         )}
 
-                    </span>
+                    </div>
 
-                    <button
-                        class="delete-expense"
-                        onclick="deleteExpense('${expense.id}')">
 
-                        ×
+                    <div class="card-actions">
 
-                    </button>
+                        <button
+                            class="card-action"
+                            onclick="editBill('${bill.id}')">
+
+                            Edit
+
+                        </button>
+
+                        <button
+                            class="card-action delete"
+                            onclick="deleteBill('${bill.id}')">
+
+                            Delete
+
+                        </button>
+
+                    </div>
 
                 </div>
 
@@ -721,174 +790,1272 @@ function renderAllExpenses() {
 }
 
 
-/* =========================================
-   MODAL EVENTS
-========================================= */
+function renderBillPreview(){
 
-$("addButton")
-    .addEventListener(
-        "click",
-        openExpenseModal
-    );
+    const container =
+        $("billPreview");
 
 
-$("closeModal")
-    .addEventListener(
-        "click",
-        closeExpenseModal
-    );
+    if(!bills.length){
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                No upcoming bills.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
 
 
-$("expenseModal")
-    .addEventListener(
-        "click",
-        function(event) {
+    const bill =
+        [...bills]
+        .sort(
+            (a,b) =>
+                new Date(a.date)
+                -
+                new Date(b.date)
+        )[0];
 
-            if (
-                event.target ===
-                $("expenseModal")
-            ) {
 
-                closeExpenseModal();
+    container.innerHTML = `
+
+        <div class="bill-card">
+
+            <div class="bill-left">
+
+                <div class="bill-icon">
+                    🧾
+                </div>
+
+                <div>
+
+                    <div class="bill-name">
+
+                        ${escapeHTML(
+                            bill.name
+                        )}
+
+                    </div>
+
+                    <div class="bill-due">
+
+                        ${bill.frequency}
+                        ·
+                        ${formatDate(
+                            bill.date
+                        )}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="bill-amount">
+
+                ${money(
+                    bill.amount
+                )}
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+function openBillModal(bill = null){
+
+    $("billModal")
+        .classList
+        .add("show");
+
+
+    if(bill){
+
+        $("editingBillId")
+            .value =
+            bill.id;
+
+        $("billName")
+            .value =
+            bill.name;
+
+        $("billAmount")
+            .value =
+            bill.amount;
+
+        $("billDate")
+            .value =
+            bill.date;
+
+        $("billFrequency")
+            .value =
+            bill.frequency;
+
+    }
+
+    else{
+
+        $("billForm")
+            .reset();
+
+        $("editingBillId")
+            .value = "";
+
+    }
+
+}
+
+
+function editBill(id){
+
+    const bill =
+        bills.find(
+            b => b.id === id
+        );
+
+
+    if(bill){
+
+        openBillModal(
+            bill
+        );
+
+    }
+
+}
+
+
+function deleteBill(id){
+
+    if(
+        !confirm(
+            "Delete this bill?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    bills =
+        bills.filter(
+            b => b.id !== id
+        );
+
+
+    saveAll();
+
+    renderBills();
+
+    renderBillPreview();
+
+}
+
+
+$("billForm")
+.addEventListener(
+    "submit",
+    function(event){
+
+        event.preventDefault();
+
+
+        const id =
+            $("editingBillId")
+            .value;
+
+
+        const data = {
+
+            name:
+                $("billName")
+                .value
+                .trim(),
+
+            amount:
+                Number(
+                    $("billAmount")
+                    .value
+                ),
+
+            date:
+                $("billDate")
+                .value,
+
+            frequency:
+                $("billFrequency")
+                .value
+
+        };
+
+
+        if(
+            !data.name ||
+            !data.amount ||
+            !data.date
+        ){
+
+            alert(
+                "Please fill all fields."
+            );
+
+            return;
+
+        }
+
+
+        if(id){
+
+            const index =
+                bills.findIndex(
+                    b => b.id === id
+                );
+
+
+            if(index !== -1){
+
+                bills[index] = {
+
+                    ...bills[index],
+                    ...data
+
+                };
 
             }
 
         }
-    );
 
+        else{
 
-$("expenseForm")
-    .addEventListener(
-        "submit",
-        addExpense
-    );
+            bills.push({
 
+                id:
+                    Date.now()
+                    .toString(),
 
-/* =========================================
-   VIEW ALL
-========================================= */
+                ...data
 
-$("viewAll")
-    .addEventListener(
-        "click",
-        function() {
-
-            renderAllExpenses();
-
-            $("allExpensesModal")
-                .classList
-                .add("show");
+            });
 
         }
-    );
 
 
-$("closeAllExpenses")
-    .addEventListener(
-        "click",
-        function() {
+        saveAll();
 
-            $("allExpensesModal")
-                .classList
-                .remove("show");
+        closeModal(
+            "billModal"
+        );
+
+        renderBills();
+
+        renderBillPreview();
+
+    }
+);
+
+
+/* =====================================
+   GOALS
+===================================== */
+
+function goalHTML(goal){
+
+    const percent =
+        goal.target > 0
+        ?
+        Math.min(
+            100,
+            Math.round(
+                goal.saved /
+                goal.target *
+                100
+            )
+        )
+        :
+        0;
+
+
+    return `
+
+        <div class="goal-card">
+
+            <div class="goal-top">
+
+                <div class="goal-name">
+
+                    ${escapeHTML(
+                        goal.name
+                    )}
+
+                </div>
+
+                <div class="goal-percent">
+
+                    ${percent}%
+
+                </div>
+
+            </div>
+
+
+            <div class="goal-amount">
+
+                ${money(goal.saved)}
+                /
+                ${money(goal.target)}
+
+            </div>
+
+
+            <div class="progress">
+
+                <div
+                    class="progress-fill"
+                    style="width:${percent}%">
+
+                </div>
+
+            </div>
+
+
+            <div class="card-actions">
+
+                <button
+                    class="card-action"
+                    onclick="addGoalMoney('${goal.id}')">
+
+                    + Add money
+
+                </button>
+
+
+                <button
+                    class="card-action"
+                    onclick="editGoal('${goal.id}')">
+
+                    Edit
+
+                </button>
+
+
+                <button
+                    class="card-action delete"
+                    onclick="deleteGoal('${goal.id}')">
+
+                    Delete
+
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+function renderGoals(){
+
+    const container =
+        $("allGoals");
+
+
+    if(!goals.length){
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                No saving goals yet.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        goals
+        .map(goalHTML)
+        .join("");
+
+}
+
+
+function renderGoalPreview(){
+
+    const container =
+        $("goalPreview");
+
+
+    if(!goals.length){
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                No saving goal yet.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        goalHTML(
+            goals[0]
+        );
+
+}
+
+
+function openGoalModal(goal = null){
+
+    $("goalModal")
+        .classList
+        .add("show");
+
+
+    if(goal){
+
+        $("editingGoalId")
+            .value =
+            goal.id;
+
+        $("goalName")
+            .value =
+            goal.name;
+
+        $("goalTarget")
+            .value =
+            goal.target;
+
+        $("goalSaved")
+            .value =
+            goal.saved;
+
+    }
+
+    else{
+
+        $("goalForm")
+            .reset();
+
+        $("editingGoalId")
+            .value = "";
+
+        $("goalSaved")
+            .value = 0;
+
+    }
+
+}
+
+
+function editGoal(id){
+
+    const goal =
+        goals.find(
+            g => g.id === id
+        );
+
+
+    if(goal){
+
+        openGoalModal(
+            goal
+        );
+
+    }
+
+}
+
+
+function deleteGoal(id){
+
+    if(
+        !confirm(
+            "Delete this saving goal?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    goals =
+        goals.filter(
+            g => g.id !== id
+        );
+
+
+    saveAll();
+
+    renderGoals();
+
+    renderGoalPreview();
+
+}
+
+
+function addGoalMoney(id){
+
+    const goal =
+        goals.find(
+            g => g.id === id
+        );
+
+
+    if(!goal){
+
+        return;
+
+    }
+
+
+    const amount =
+        Number(
+            prompt(
+                "How much did you save?"
+            )
+        );
+
+
+    if(
+        !amount ||
+        amount <= 0
+    ){
+
+        return;
+
+    }
+
+
+    goal.saved += amount;
+
+
+    saveAll();
+
+    renderGoals();
+
+    renderGoalPreview();
+
+}
+
+
+$("goalForm")
+.addEventListener(
+    "submit",
+    function(event){
+
+        event.preventDefault();
+
+
+        const id =
+            $("editingGoalId")
+            .value;
+
+
+        const data = {
+
+            name:
+                $("goalName")
+                .value
+                .trim(),
+
+            target:
+                Number(
+                    $("goalTarget")
+                    .value
+                ),
+
+            saved:
+                Number(
+                    $("goalSaved")
+                    .value
+                ) || 0
+
+        };
+
+
+        if(
+            !data.name ||
+            !data.target
+        ){
+
+            alert(
+                "Please fill all fields."
+            );
+
+            return;
 
         }
-    );
 
 
-/* =========================================
-   NAVIGATION
-========================================= */
+        if(id){
 
-document
-    .querySelectorAll(
-        ".nav-item"
-    )
-    .forEach(
-        item => {
-
-            item.addEventListener(
-                "click",
-                function() {
-
-                    document
-                        .querySelectorAll(
-                            ".nav-item"
-                        )
-                        .forEach(
-                            nav =>
-                                nav.classList
-                                .remove(
-                                    "active"
-                                )
-                        );
+            const index =
+                goals.findIndex(
+                    g => g.id === id
+                );
 
 
-                    this.classList.add(
-                        "active"
-                    );
+            if(index !== -1){
+
+                goals[index] = {
+
+                    ...goals[index],
+                    ...data
+
+                };
+
+            }
+
+        }
+
+        else{
+
+            goals.push({
+
+                id:
+                    Date.now()
+                    .toString(),
+
+                ...data
+
+            });
+
+        }
 
 
-                    const page =
-                        this.dataset.page;
+        saveAll();
+
+        closeModal(
+            "goalModal"
+        );
+
+        renderGoals();
+
+        renderGoalPreview();
+
+    }
+);
 
 
-                    /*
-                       Expenses currently opens
-                       the expense history.
+/* =====================================
+   SETTINGS
+===================================== */
 
-                       Bills and Goals will be
-                       connected in the next stage.
-                    */
+function loadSettings(){
 
-                    if (
-                        page ===
-                        "expenses"
-                    ) {
+    $("startingBalance")
+        .value =
+        settings.startingBalance;
 
-                        renderAllExpenses();
+    $("monthlyIncome")
+        .value =
+        settings.monthlyIncome;
 
-                        $("allExpensesModal")
-                            .classList
-                            .add("show");
+}
 
-                    }
 
-                    else if (
-                        page ===
-                        "bills"
-                    ) {
+$("saveSettings")
+.addEventListener(
+    "click",
+    function(){
 
-                        alert(
-                            "Bills section coming next 🚀"
-                        );
+        settings.startingBalance =
+            Number(
+                $("startingBalance")
+                .value
+            ) || 0;
 
-                    }
 
-                    else if (
-                        page ===
-                        "goals"
-                    ) {
+        settings.monthlyIncome =
+            Number(
+                $("monthlyIncome")
+                .value
+            ) || 0;
 
-                        alert(
-                            "Saving Goals section coming next 🎯"
-                        );
 
-                    }
+        saveAll();
 
+        updateDashboard();
+
+
+        alert(
+            "Settings saved ✓"
+        );
+
+    }
+);
+
+
+/* =====================================
+   EXPORT
+===================================== */
+
+$("exportData")
+.addEventListener(
+    "click",
+    function(){
+
+        const data = {
+
+            settings,
+            expenses,
+            bills,
+            goals
+
+        };
+
+
+        const blob =
+            new Blob(
+                [
+                    JSON.stringify(
+                        data,
+                        null,
+                        2
+                    )
+                ],
+                {
+                    type:
+                        "application/json"
                 }
             );
 
+
+        const url =
+            URL.createObjectURL(
+                blob
+            );
+
+
+        const link =
+            document.createElement(
+                "a"
+            );
+
+
+        link.href = url;
+
+        link.download =
+            "budzio-backup.json";
+
+
+        link.click();
+
+
+        URL.revokeObjectURL(
+            url
+        );
+
+    }
+);
+
+
+/* =====================================
+   IMPORT
+===================================== */
+
+$("importDataButton")
+.addEventListener(
+    "click",
+    function(){
+
+        $("importFile")
+            .click();
+
+    }
+);
+
+
+$("importFile")
+.addEventListener(
+    "change",
+    function(){
+
+        const file =
+            this.files[0];
+
+
+        if(!file){
+
+            return;
+
         }
-    );
 
 
-/* =========================================
-   INITIALIZE
-========================================= */
+        const reader =
+            new FileReader();
 
-updateGreeting();
 
-renderExpenses();
+        reader.onload =
+            function(event){
 
-updateOverview();
+                try{
+
+                    const data =
+                        JSON.parse(
+                            event.target.result
+                        );
+
+
+                    settings =
+                        data.settings || settings;
+
+                    expenses =
+                        data.expenses || [];
+
+                    bills =
+                        data.bills || [];
+
+                    goals =
+                        data.goals || [];
+
+
+                    saveAll();
+
+
+                    loadEverything();
+
+
+                    alert(
+                        "Budzio data imported ✓"
+                    );
+
+                }
+
+                catch{
+
+                    alert(
+                        "Invalid backup file."
+                    );
+
+                }
+
+            };
+
+
+        reader.readAsText(
+            file
+        );
+
+    }
+);
+
+
+/* =====================================
+   RESET
+===================================== */
+
+$("resetData")
+.addEventListener(
+    "click",
+    function(){
+
+        const confirmed =
+            confirm(
+                "This will permanently delete your Budzio data. Continue?"
+            );
+
+
+        if(!confirmed){
+
+            return;
+
+        }
+
+
+        localStorage.clear();
+
+
+        settings = {
+
+            startingBalance:0,
+            monthlyIncome:0
+
+        };
+
+
+        expenses = [];
+
+        bills = [];
+
+        goals = [];
+
+
+        loadEverything();
+
+
+        alert(
+            "All Budzio data has been cleared."
+        );
+
+    }
+);
+
+
+/* =====================================
+   NAVIGATION
+===================================== */
+
+const pages = {
+
+    overview:
+        $("overviewPage"),
+
+    expenses:
+        $("expensesPage"),
+
+    bills:
+        $("billsPage"),
+
+    goals:
+        $("goalsPage"),
+
+    settings:
+        $("settingsPage")
+
+};
+
+
+function showPage(page){
+
+    Object.values(pages)
+        .forEach(
+            element => {
+
+                if(element){
+
+                    element.style.display =
+                        "none";
+
+                }
+
+            }
+        );
+
+
+    if(pages[page]){
+
+        pages[page].style.display =
+            page === "overview"
+            ? "block"
+            : "block";
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".nav-item"
+        )
+        .forEach(
+            item => {
+
+                item.classList.toggle(
+                    "active",
+                    item.dataset.page
+                    ===
+                    page
+                );
+
+            }
+        );
+
+
+    $("addButton").style.display =
+        page === "overview"
+        || page === "expenses"
+        || page === "bills"
+        || page === "goals"
+        ? "block"
+        : "none";
+
+}
+
+
+/* Bottom navigation */
+
+document
+.querySelectorAll(
+    ".nav-item"
+)
+.forEach(
+    item => {
+
+        item.addEventListener(
+            "click",
+            function(){
+
+                showPage(
+                    this.dataset.page
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* Settings button */
+
+$("settingsButton")
+.addEventListener(
+    "click",
+    function(){
+
+        showPage(
+            "settings"
+        );
+
+    }
+);
+
+
+/* Overview buttons */
+
+$("viewExpenses")
+.addEventListener(
+    "click",
+    function(){
+
+        showPage(
+            "expenses"
+        );
+
+    }
+);
+
+
+$("viewBills")
+.addEventListener(
+    "click",
+    function(){
+
+        showPage(
+            "bills"
+        );
+
+    }
+);
+
+
+$("viewGoals")
+.addEventListener(
+    "click",
+    function(){
+
+        showPage(
+            "goals"
+        );
+
+    }
+);
+
+
+/* =====================================
+   ADD BUTTON
+===================================== */
+
+$("addButton")
+.addEventListener(
+    "click",
+    function(){
+
+        const current =
+            document
+            .querySelector(
+                ".nav-item.active"
+            )
+            ?.dataset.page;
+
+
+        if(current === "bills"){
+
+            openBillModal();
+
+        }
+
+        else if(current === "goals"){
+
+            openGoalModal();
+
+        }
+
+        else{
+
+            openExpenseModal();
+
+        }
+
+    }
+);
+
+
+$("expenseAddButton")
+.addEventListener(
+    "click",
+    () => openExpenseModal()
+);
+
+
+$("billAddButton")
+.addEventListener(
+    "click",
+    () => openBillModal()
+);
+
+
+$("goalAddButton")
+.addEventListener(
+    "click",
+    () => openGoalModal()
+);
+
+
+/* =====================================
+   MODAL CLOSE
+===================================== */
+
+function closeModal(id){
+
+    $(id)
+        .classList
+        .remove("show");
+
+}
+
+
+document
+.querySelectorAll(
+    "[data-close]"
+)
+.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            function(){
+
+                closeModal(
+                    this.dataset.close
+                );
+
+            }
+        );
+
+    }
+);
+
+
+document
+.querySelectorAll(
+    ".modal-overlay"
+)
+.forEach(
+    overlay => {
+
+        overlay.addEventListener(
+            "click",
+            function(event){
+
+                if(
+                    event.target ===
+                    overlay
+                ){
+
+                    closeModal(
+                        overlay.id
+                    );
+
+                }
+
+            }
+        );
+
+    }
+);
+
+
+/* =====================================
+   ESCAPE HTML
+===================================== */
+
+function escapeHTML(text){
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        text;
+
+
+    return div.innerHTML;
+
+}
+
+
+/* =====================================
+   LOAD EVERYTHING
+===================================== */
+
+function loadEverything(){
+
+    updateGreeting();
+
+    loadSettings();
+
+    updateDashboard();
+
+    renderRecentExpenses();
+
+    renderAllExpenses();
+
+    renderBills();
+
+    renderBillPreview();
+
+    renderGoals();
+
+    renderGoalPreview();
+
+}
+
+
+/* =====================================
+   START
+===================================== */
+
+loadEverything();
+
+showPage(
+    "overview"
+);

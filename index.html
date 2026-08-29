@@ -4,28 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Budzio — Student Finance</title>
+    <title>Budzio</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="background-cloud"></div>
+<div class="background-cloud cloud-one"></div>
+<div class="background-cloud cloud-two"></div>
+
 
 <div class="app">
 
     <!-- HEADER -->
+
     <header class="header">
 
         <div class="brand">
 
-            <div class="logo">
-                B
-            </div>
+            <div class="logo">B</div>
 
             <div>
                 <div class="brand-name">budzio</div>
+
                 <div class="brand-subtitle">
                     Your money. Your goals.
                 </div>
@@ -33,281 +35,453 @@
 
         </div>
 
-        <div class="profile">
-            B
-        </div>
+        <button
+            class="profile"
+            id="settingsButton">
+
+            ⚙
+
+        </button>
 
     </header>
 
 
-    <!-- GREETING -->
-    <div class="greeting">
+    <!-- ================= OVERVIEW ================= -->
 
-        <small id="greetingText">
-            GOOD MORNING
-        </small>
+    <main id="overviewPage">
 
-        <h1>
-            Your finances,<br>
-            simplified.
-        </h1>
+        <div class="greeting">
 
-    </div>
+            <small id="greetingText">
+                GOOD MORNING
+            </small>
 
+            <h1>
+                Your finances,<br>
+                simplified.
+            </h1>
 
-    <!-- BALANCE -->
-    <section class="balance-card">
-
-        <div class="balance-label">
-            Available Balance
         </div>
 
-        <div class="balance" id="balance">
-            ₹0<span>.00</span>
-        </div>
 
-        <div class="balance-row">
+        <!-- BALANCE -->
 
-            <div class="balance-info">
-                This month
+        <section class="balance-card">
+
+            <div class="balance-label">
+                AVAILABLE BALANCE
             </div>
 
             <div
-                class="balance-positive"
-                id="monthlyChange">
+                class="balance"
+                id="balance">
+
                 ₹0
+
             </div>
+
+
+            <div class="balance-row">
+
+                <div class="balance-info">
+                    This month
+                </div>
+
+                <div
+                    class="balance-positive"
+                    id="monthlyChange">
+
+                    ₹0
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- STATS -->
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <div class="stat-icon income-icon">
+                    ↑
+                </div>
+
+                <div class="stat-label">
+                    Income
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="income">
+
+                    ₹0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-icon expense-icon">
+                    ↓
+                </div>
+
+                <div class="stat-label">
+                    Expenses
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="expenses">
+
+                    ₹0
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RECENT EXPENSES -->
+
+        <div class="section-header">
+
+            <div class="section-title">
+                Recent expenses
+            </div>
+
+            <button
+                class="view-all"
+                id="viewExpenses">
+
+                View all
+
+            </button>
+
+        </div>
+
+
+        <div id="recentExpenses">
+
+            <div class="empty-state">
+
+                No expenses yet.<br>
+                Tap + to add one.
+
+            </div>
+
+        </div>
+
+
+        <!-- SAVING GOAL -->
+
+        <div class="section-header">
+
+            <div class="section-title">
+                Saving goal
+            </div>
+
+            <button
+                class="view-all"
+                id="viewGoals">
+
+                Manage
+
+            </button>
+
+        </div>
+
+
+        <div
+            class="goal-card"
+            id="goalPreview">
+
+            <div class="empty-state">
+                No saving goal yet.
+            </div>
+
+        </div>
+
+
+        <!-- BILLS -->
+
+        <div class="section-header">
+
+            <div class="section-title">
+                Upcoming bills
+            </div>
+
+            <button
+                class="view-all"
+                id="viewBills">
+
+                View all
+
+            </button>
+
+        </div>
+
+
+        <div id="billPreview">
+
+            <div class="empty-state">
+                No upcoming bills.
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================= EXPENSES PAGE ================= -->
+
+    <section
+        class="page"
+        id="expensesPage">
+
+        <div class="page-header">
+
+            <h2>
+                Expenses
+            </h2>
+
+            <button
+                class="small-add"
+                id="expenseAddButton">
+
+                +
+
+            </button>
+
+        </div>
+
+
+        <div id="allExpenses"></div>
+
+    </section>
+
+
+    <!-- ================= BILLS PAGE ================= -->
+
+    <section
+        class="page"
+        id="billsPage">
+
+        <div class="page-header">
+
+            <h2>
+                Recurring bills
+            </h2>
+
+            <button
+                class="small-add"
+                id="billAddButton">
+
+                +
+
+            </button>
+
+        </div>
+
+
+        <div id="allBills"></div>
+
+    </section>
+
+
+    <!-- ================= GOALS PAGE ================= -->
+
+    <section
+        class="page"
+        id="goalsPage">
+
+        <div class="page-header">
+
+            <h2>
+                Saving goals
+            </h2>
+
+            <button
+                class="small-add"
+                id="goalAddButton">
+
+                +
+
+            </button>
+
+        </div>
+
+
+        <div id="allGoals"></div>
+
+    </section>
+
+
+    <!-- ================= SETTINGS ================= -->
+
+    <section
+        class="page"
+        id="settingsPage">
+
+        <div class="page-header">
+
+            <h2>
+                Settings
+            </h2>
+
+        </div>
+
+
+        <div class="settings-card">
+
+            <div class="settings-title">
+                Money setup
+            </div>
+
+
+            <label>
+                Starting balance
+            </label>
+
+            <input
+                type="number"
+                id="startingBalance"
+                placeholder="₹0">
+
+
+            <label>
+                Monthly income
+            </label>
+
+            <input
+                type="number"
+                id="monthlyIncome"
+                placeholder="₹0">
+
+
+            <button
+                class="save-button"
+                id="saveSettings">
+
+                Save settings
+
+            </button>
+
+        </div>
+
+
+        <div class="settings-card">
+
+            <div class="settings-title">
+                Data
+            </div>
+
+
+            <button
+                class="settings-action"
+                id="exportData">
+
+                📤 Export Budzio data
+
+            </button>
+
+
+            <button
+                class="settings-action"
+                id="importDataButton">
+
+                📥 Import data
+
+            </button>
+
+
+            <input
+                type="file"
+                id="importFile"
+                accept=".json"
+                hidden>
+
+
+            <button
+                class="settings-action danger"
+                id="resetData">
+
+                🗑 Clear all Budzio data
+
+            </button>
 
         </div>
 
     </section>
 
 
-    <!-- STATS -->
-    <div class="stats">
-
-        <div class="stat">
-
-            <div class="stat-icon income-icon">
-                ↑
-            </div>
-
-            <div class="stat-label">
-                Income
-            </div>
-
-            <div
-                class="stat-value"
-                id="income">
-                ₹0
-            </div>
-
-        </div>
-
-
-        <div class="stat">
-
-            <div class="stat-icon expense-icon">
-                ↓
-            </div>
-
-            <div class="stat-label">
-                Expenses
-            </div>
-
-            <div
-                class="stat-value"
-                id="expenses">
-                ₹0
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- RECENT EXPENSES -->
-
-    <div class="section-header">
-
-        <div class="section-title">
-            Recent expenses
-        </div>
-
-        <button
-            class="view-all"
-            id="viewAll">
-            View all
-        </button>
-
-    </div>
-
-
-    <div id="expenseList">
-
-        <div class="empty-state">
-            No expenses yet.<br>
-            Tap + to add your first expense.
-        </div>
-
-    </div>
-
-
-    <!-- SAVING GOALS PREVIEW -->
-
-    <div class="section-header goal-section">
-
-        <div class="section-title">
-            Saving goal
-        </div>
-
-        <button class="view-all">
-            Manage
-        </button>
-
-    </div>
-
-
-    <div class="goal-card">
-
-        <div class="goal-top">
-
-            <div
-                class="goal-name"
-                id="goalName">
-                No goal yet
-            </div>
-
-            <div
-                class="goal-percent"
-                id="goalPercent">
-                0%
-            </div>
-
-        </div>
-
-
-        <div
-            class="goal-amount"
-            id="goalAmount">
-
-            Create a saving goal to
-            start tracking your progress.
-
-        </div>
-
-
-        <div class="progress">
-
-            <div
-                class="progress-fill"
-                id="goalProgress">
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- BILLS -->
-
-    <div class="section-header bill-section">
-
-        <div class="section-title">
-            Upcoming bills
-        </div>
-
-        <button class="view-all">
-            View all
-        </button>
-
-    </div>
-
-
-    <div id="billPreview">
-
-        <div class="empty-state small">
-            No upcoming bills.
-        </div>
-
-    </div>
-
-
 </div>
 
 
-<!-- ADD BUTTON -->
+<!-- ================= FLOATING ADD ================= -->
 
 <button
     class="add-button"
     id="addButton">
+
     +
+
 </button>
 
 
-<!-- BOTTOM NAV -->
+<!-- ================= BOTTOM NAV ================= -->
 
 <nav class="bottom-nav">
 
-    <div class="nav">
+    <button
+        class="nav-item active"
+        data-page="overview">
 
-        <button
-            class="nav-item active"
-            data-page="overview">
+        <span>⌂</span>
+        Home
 
-            <div class="nav-icon">
-                ◉
-            </div>
-
-            Overview
-
-        </button>
+    </button>
 
 
-        <button
-            class="nav-item"
-            data-page="expenses">
+    <button
+        class="nav-item"
+        data-page="expenses">
 
-            <div class="nav-icon">
-                ↓
-            </div>
+        <span>↓</span>
+        Expenses
 
-            Expenses
-
-        </button>
+    </button>
 
 
-        <button
-            class="nav-item"
-            data-page="bills">
+    <button
+        class="nav-item"
+        data-page="bills">
 
-            <div class="nav-icon">
-                ↻
-            </div>
+        <span>↻</span>
+        Bills
 
-            Bills
-
-        </button>
+    </button>
 
 
-        <button
-            class="nav-item"
-            data-page="goals">
+    <button
+        class="nav-item"
+        data-page="goals">
 
-            <div class="nav-icon">
-                ◎
-            </div>
+        <span>◎</span>
+        Goals
 
-            Goals
-
-        </button>
-
-    </div>
+    </button>
 
 </nav>
 
 
-<!-- ADD EXPENSE MODAL -->
+<!-- ================= EXPENSE MODAL ================= -->
 
 <div
     class="modal-overlay"
@@ -324,21 +498,27 @@
                 </div>
 
                 <div class="modal-subtitle">
-                    Track where your money goes
+                    Track your spending
                 </div>
 
             </div>
 
             <button
-                class="close-modal"
-                id="closeModal">
+                class="close-button"
+                data-close="expenseModal">
+
                 ×
+
             </button>
 
         </div>
 
 
         <form id="expenseForm">
+
+            <input
+                type="hidden"
+                id="editingExpenseId">
 
 
             <label>
@@ -354,14 +534,13 @@
                     id="expenseAmount"
                     placeholder="0"
                     min="1"
-                    step="0.01"
                     required>
 
             </div>
 
 
             <label>
-                Expense name
+                Name
             </label>
 
             <input
@@ -375,36 +554,15 @@
                 Category
             </label>
 
-            <select
-                id="expenseCategory">
+            <select id="expenseCategory">
 
-                <option value="Food">
-                    🍔 Food
-                </option>
-
-                <option value="Travel">
-                    🚌 Travel
-                </option>
-
-                <option value="Education">
-                    📚 Education
-                </option>
-
-                <option value="Shopping">
-                    🛍️ Shopping
-                </option>
-
-                <option value="Entertainment">
-                    🎮 Entertainment
-                </option>
-
-                <option value="Bills">
-                    🧾 Bills
-                </option>
-
-                <option value="Other">
-                    📦 Other
-                </option>
+                <option>Food</option>
+                <option>Travel</option>
+                <option>Education</option>
+                <option>Shopping</option>
+                <option>Entertainment</option>
+                <option>Bills</option>
+                <option>Other</option>
 
             </select>
 
@@ -420,10 +578,10 @@
 
 
             <button
-                type="submit"
-                class="save-button">
+                class="save-button"
+                type="submit">
 
-                Add expense
+                Save expense
 
             </button>
 
@@ -434,41 +592,191 @@
 </div>
 
 
-<!-- EXPENSES PAGE MODAL -->
+<!-- ================= BILL MODAL ================= -->
 
 <div
     class="modal-overlay"
-    id="allExpensesModal">
+    id="billModal">
 
-    <div class="modal large-modal">
+    <div class="modal">
 
         <div class="modal-header">
 
             <div>
 
                 <div class="modal-title">
-                    Expense history
+                    Add bill
                 </div>
 
                 <div class="modal-subtitle">
-                    All your recorded expenses
+                    Track recurring payments
                 </div>
 
             </div>
 
             <button
-                class="close-modal"
-                id="closeAllExpenses">
+                class="close-button"
+                data-close="billModal">
+
                 ×
+
             </button>
 
         </div>
 
 
-        <div
-            id="allExpenseList"
-            class="history-list">
+        <form id="billForm">
+
+            <input
+                type="hidden"
+                id="editingBillId">
+
+
+            <label>
+                Bill name
+            </label>
+
+            <input
+                type="text"
+                id="billName"
+                placeholder="e.g. Netflix"
+                required>
+
+
+            <label>
+                Amount
+            </label>
+
+            <input
+                type="number"
+                id="billAmount"
+                placeholder="₹0"
+                min="1"
+                required>
+
+
+            <label>
+                Due date
+            </label>
+
+            <input
+                type="date"
+                id="billDate"
+                required>
+
+
+            <label>
+                Frequency
+            </label>
+
+            <select id="billFrequency">
+
+                <option>Monthly</option>
+                <option>Weekly</option>
+                <option>Yearly</option>
+
+            </select>
+
+
+            <button
+                class="save-button"
+                type="submit">
+
+                Save bill
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ================= GOAL MODAL ================= -->
+
+<div
+    class="modal-overlay"
+    id="goalModal">
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div>
+
+                <div class="modal-title">
+                    Saving goal
+                </div>
+
+                <div class="modal-subtitle">
+                    Build toward something
+                </div>
+
+            </div>
+
+            <button
+                class="close-button"
+                data-close="goalModal">
+
+                ×
+
+            </button>
+
         </div>
+
+
+        <form id="goalForm">
+
+            <input
+                type="hidden"
+                id="editingGoalId">
+
+
+            <label>
+                Goal name
+            </label>
+
+            <input
+                type="text"
+                id="goalName"
+                placeholder="e.g. New laptop"
+                required>
+
+
+            <label>
+                Target amount
+            </label>
+
+            <input
+                type="number"
+                id="goalTarget"
+                placeholder="₹0"
+                min="1"
+                required>
+
+
+            <label>
+                Already saved
+            </label>
+
+            <input
+                type="number"
+                id="goalSaved"
+                placeholder="₹0"
+                min="0"
+                value="0">
+
+
+            <button
+                class="save-button"
+                type="submit">
+
+                Save goal
+
+            </button>
+
+        </form>
 
     </div>
 
